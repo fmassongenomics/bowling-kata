@@ -1,8 +1,8 @@
 -- Frame, Throw, Hits for each throw
-data Game = Game Int Throw [(Int,Int)] Bool 
+data Game = Game Int Throw [(Int,Int)] Bool
 instance Show Game where
     show (Game frame throw hits strikeBonusRoll) = show frame ++ " " ++ show throw ++ " " ++ show hits ++ showBonusRoll strikeBonusRoll
-        where 
+        where
             showBonusRoll True = " Bonus roll from strike"
             showBonusRoll False = ""
 data Throw =  One | Two  deriving Show
@@ -12,7 +12,7 @@ instance Show StrikeOrSpare where
     show Spare = "Spare"
     show Neither = "Neither"
 
-initialGame = Game 1 One [] False 
+initialGame = Game 1 One [] False
 
 -- Scenarios
 -- 1st roll of frame, not a stike -> inc throw append to hits inner list
@@ -22,13 +22,13 @@ initialGame = Game 1 One [] False
 -- 10th frame, 2nd throw -> frame = 12, append to hits inner list
 roll:: Game -> Int -> Game
 roll g@(Game 12 _ _ _) _ = g
-roll (Game 11 _ hits True) pins = Game 12 One (appendToLastPair hits pins) False 
+roll (Game 11 _ hits True) pins = Game 12 One (appendToLastPair hits pins) False
 roll (Game 10 Two hits _) pins
-    | fst (last hits) + pins == 10 = Game 11 One (appendToLastPair hits pins) True 
-    | otherwise = Game 12 One (appendToLastPair hits pins) False 
-roll (Game f One hits _) 10 = Game (f+1) One (hits++[(10,0)]) False 
-roll (Game f One hits _) pins = Game f Two (hits++[(pins,0)]) False 
-roll (Game f Two hits _) pins = Game (f+1) One (appendToLastPair hits pins) False 
+    | fst (last hits) + pins == 10 = Game 11 One (appendToLastPair hits pins) True
+    | otherwise = Game 12 One (appendToLastPair hits pins) False
+roll (Game f One hits _) 10 = Game (f+1) One (hits++[(10,0)]) False
+roll (Game f One hits _) pins = Game f Two (hits++[(pins,0)]) False
+roll (Game f Two hits _) pins = Game (f+1) One (appendToLastPair hits pins) False
 
 appendToLastPair:: [(Int,Int)] -> Int -> [(Int,Int)]
 appendToLastPair pairs x = init pairs++[(fst (last pairs),x)]
@@ -50,7 +50,7 @@ repeatSpareNeithers (Spare:ss) = Neither : Spare : repeatSpareNeithers ss
 repeatSpareNeithers (Neither:ss) = Neither : Neither : repeatSpareNeithers ss
 repeatSpareNeithers [] = []
 
-modifiersFromStrikeSpares ss = map (1 +) (convert ss [0,0])
+modifiersFromStrikeSpares ss = map (1 +) (0: convert ss [0])
     where
         convert (Strike:ss) is = convert ss (init is ++ [1 + last is] ++ [1])
         convert (Spare:ss) is = convert ss (init is ++ [1 + last is] ++ [0])
